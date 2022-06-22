@@ -5,7 +5,8 @@ import math
 import cv2
 from abc import ABC
 
-class edge_extracter(ABC):
+#Abstract base class for the different types of edge extractors
+class edge_extractor(ABC):
     def __init__(self):
         self.image = None
     
@@ -19,9 +20,10 @@ class edge_extracter(ABC):
         pass
 
 
-class sobel_edge_extracter(edge_extracter):
+#Sobel filter
+class sobel_edge_extractor(edge_extractor):
     def __init__(self):
-        super(sobel_edge_extracter,self).__init__()
+        super(sobel_edge_extractor,self).__init__()
 
     def extract_edges(self):
         #Vertical Sobel Filter
@@ -76,23 +78,31 @@ class sobel_edge_extracter(edge_extracter):
         with open("Example.html","w") as f:
             print(ani.to_html5_video(), file=f)
 
-class canny_edge_extracter(edge_extracter):
+#Canny filter using openCV
+class canny_edge_extractor(edge_extractor):
     def __init__(self):
-        super(canny_edge_extracter,self).__init__()
+        super(canny_edge_extractor,self).__init__()
 
     def extract_edges(self):
+        #Use OpenCV to apply a Canny Filter and wait until keypress to view image
         edges = cv2.Canny(self.image,100,200)
         cv2.imshow('Edges',edges)
         cv2.waitKey(0)
         cv2.destroyAllWindows()
 
-sobel = sobel_edge_extracter()
-canny = canny_edge_extracter()
-image = plt.imread('DSC_0221.JPG')
-image2 = cv2.imread('DSC_0221.JPG')
-sobel.set_image(image)
-sobel.extract_edges()
-canny.set_image(image)
-canny.extract_edges()
+def main():
+    #Create Sobel extractor
+    sobel = sobel_edge_extractor()
+    #Create Canny extractor
+    canny = canny_edge_extractor()
+    #Set images
+    image = plt.imread('DSC_0221.JPG')
 
+    #Extract edges
+    sobel.set_image(image)
+    sobel.extract_edges()
+    canny.set_image(image)
+    canny.extract_edges()
 
+if __name__ == "__main__":
+    main()
