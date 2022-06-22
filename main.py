@@ -1,6 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.animation as animation
 import math
+import cv2
 from abc import ABC
 
 class edge_extracter(ABC):
@@ -34,6 +36,11 @@ class sobel_edge_extracter(edge_extracter):
         #Initialize edge image
         edges_img = np.empty(self.image.shape)
 
+        #Initialize ims
+        fig, ax = plt.subplots()
+        ims = []
+        ax.imshow(edges_img)
+
         #Loop through all pixels in image
         for row in range(n-2):
             for col in range(m-2):
@@ -55,9 +62,37 @@ class sobel_edge_extracter(edge_extracter):
 
                 #Insert into edges image
                 edges_img[row,col] = [edge_score]*3
+
+            if row%100 == 0:
+                #Renormalize to between 0-1 range in each image frame
+                im = ax.imshow(edges_img/edges_img.max(), animated=True)
+                ims.append([im])
         
         #Renormalize to between 0-1 range
         edges_img = edges_img/edges_img.max()
 
-        return edges_img
+        ani = animation.ArtistAnimation(fig, ims, interval = 100, repeat_delay = 1000, blit = True)
+        
+        with open("Example.html","w") as f:
+            print(ani.to_html5_video(), file=f)
+
+class canny_edge_extracter(edge_extracter):
+    def __init__(self):
+        super(canny_edge_extracter,self).__init__()
+
+    def extract_edges(self):
+        edges = cv2.Canny(self.image,100,200)
+        cv2.imshow('Edges',edges)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
+
+sobel = sobel_edge_extracter()
+canny = canny_edge_extracter()
+image = plt.imread('DSC_0221.JPG')
+image2 = cv2.imread('DSC_0221.JPG')
+sobel.set_image(image)
+sobel.extract_edges()
+canny.set_image(image)
+canny.extract_edges()
+
 
